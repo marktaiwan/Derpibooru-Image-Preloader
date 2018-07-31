@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Marker's Derpibooru Image Preloader
 // @description  Preload previous/next images.
-// @version      1.0.0
+// @version      1.1.0
 // @author       Marker
 // @license      MIT
 // @namespace    https://github.com/marktaiwan/
@@ -82,7 +82,6 @@
   const SCRIPT_ID = 'markers_img_prefetcher';
   const RUN_AT_IDLE = (config.getEntry('run-at') == 'document-idle');
   const WEBM_SUPPORT = (document.createElement('video').canPlayType('video/webm; codecs="vp8, vp9, vorbis, opus"') == 'probably');
-
 
   const addToLoadingQueue = (function () {
     const MAX_CONNECTIONS = 4;
@@ -174,8 +173,10 @@
       });
   }
 
-  async function fetchFile(metaURI) {
-    const metadata = await fetchMeta(metaURI);
+  async function fetchFile(meta) {
+
+    // 'meta' could be an URI or an object
+    const metadata = (typeof meta == 'string') ? await fetchMeta(meta) : meta;
     if (isEmpty(metadata)) return;
 
     const version = selectVersion(metadata.width, metadata.height);
@@ -183,7 +184,7 @@
     const serve_webm = JSON.parse(localStorage.getItem('serve_webm'));
     const get_fullres = config.getEntry('fullres');
     const get_scaled = config.getEntry('scaled');
-    const site_scaling = (document.getElementById('image_target').closest('.image-show').dataset.scaled !== 'false');
+    const site_scaling = (document.getElementById('image_target').dataset.scaled !== 'false');
     const serveGifv = (metadata.original_format == 'gif' && uris.webm !== undefined && serve_webm);  // gifv: video clips masquerading as gifs
 
     if (serveGifv) {
@@ -211,6 +212,17 @@
     const get_sequential = config.getEntry('get_sequential');
     const get_description = config.getEntry('get_description');
 
+    if (config.getEntry('fullres')) {
+      // preload current image's full res version
+      const imageTarget = document.getElementById('image_target');
+      const currentUris = JSON.parse(imageTarget.dataset.uris);
+      if (imageTarget.dataset.scaled !== 'false') fetchFile({
+        width: JSON.parse(imageTarget.dataset.width),
+        height: JSON.parse(imageTarget.dataset.height),
+        representations: currentUris,
+        original_format: (/\.(\w+?)$/).exec(currentUris.full)[1]
+      });
+    }
     if (get_sequential) {
       fetchFile(next);
       fetchFile(prev);
