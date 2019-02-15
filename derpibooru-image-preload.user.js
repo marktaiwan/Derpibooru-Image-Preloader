@@ -187,6 +187,13 @@
     const site_scaling = (document.getElementById('image_target').dataset.scaled !== 'false');
     const serveGifv = (metadata.original_format == 'gif' && uris.webm !== undefined && serve_webm);  // gifv: video clips masquerading as gifs
 
+    // Workaround: Derpibooru switched to using id only URL for displaying fullsize images,
+    // however the link for the 'full' representation returns by the JSON remains the old one.
+    const result = (new RegExp('//derpicdn\\.net/img/view/(\\d+/\\d+/\\d+)').exec(uris['full']));
+    if (result) {
+      uris['full'] = `//derpicdn.net/img/view/${result[1]}/${metadata.id}.${metadata.original_format}`;
+    }
+
     if (serveGifv) {
       uris['full'] = uris[WEBM_SUPPORT ? 'webm' : 'mp4'];
     }
@@ -217,6 +224,7 @@
       const imageTarget = document.getElementById('image_target');
       const currentUris = JSON.parse(imageTarget.dataset.uris);
       if (imageTarget.dataset.scaled !== 'false') fetchFile({
+        id: imageTarget.closest('.image-show-container').dataset.imageId,
         width: JSON.parse(imageTarget.dataset.width),
         height: JSON.parse(imageTarget.dataset.height),
         representations: currentUris,
