@@ -81,7 +81,7 @@
 
   const SCRIPT_ID = 'markers_img_prefetcher';
   const RUN_AT_IDLE = (config.getEntry('run-at') == 'document-idle');
-  const WEBM_SUPPORT = (document.createElement('video').canPlayType('video/webm; codecs="vp8, vp9, vorbis, opus"') == 'probably');
+  const WEBM_SUPPORT = MediaSource.isTypeSupported('video/webm; codecs="vp8, vp9, vorbis, opus"');
 
   const addToLoadingQueue = (function () {
     const MAX_CONNECTIONS = 4;
