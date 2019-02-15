@@ -313,7 +313,7 @@ a.${SCRIPT_ID}__option.disabled, .${SCRIPT_ID}__option.disabled > * {
     }
 
     updateUI(menuButton);
-    headerRight.insertBefore(menuButton, headerRight.querySelector('.header__force-right > :last-child'));
+    headerRight.insertBefore(menuButton, headerRight.querySelector('.header__force-right > :first-child'));
   }
 
   function updateUI(ele) {
@@ -375,7 +375,7 @@ a.${SCRIPT_ID}__option.disabled, .${SCRIPT_ID}__option.disabled > * {
 
   function checkTimer() {
     const lastRun = config.getEntry('last_run') || 0;
-    const offTimer = Number(config.getEntry('off_timer')) * 1000;  // milliseconds
+    const offTimer = Number(config.getEntry('off_timer')) * 1000;  // seconds => milliseconds
     if (Date.now() - lastRun > offTimer) {
       scriptOff();
     }
