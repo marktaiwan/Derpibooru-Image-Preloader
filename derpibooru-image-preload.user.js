@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Marker's Derpibooru Image Preloader
 // @description  Preload previous/next images.
-// @version      1.2.0
+// @version      1.2.1
 // @author       Marker
 // @license      MIT
 // @namespace    https://github.com/marktaiwan/
@@ -191,7 +191,8 @@
     // however the link for the 'full' representation returns by the JSON remains the old one.
     const result = (new RegExp('//derpicdn\\.net/img/view/(\\d+/\\d+/\\d+)').exec(uris['full']));
     if (result) {
-      uris['full'] = `//derpicdn.net/img/view/${result[1]}/${metadata.id}.${metadata.original_format}`;
+      const dateString = result[1];
+      uris['full'] = `//derpicdn.net/img/view/${dateString}/${metadata.id}.${metadata.original_format}`;
     }
 
     if (serveGifv) {
@@ -224,9 +225,9 @@
       const imageTarget = document.getElementById('image_target');
       const currentUris = JSON.parse(imageTarget.dataset.uris);
       if (imageTarget.dataset.scaled !== 'false') fetchFile({
-        id: imageTarget.closest('.image-show-container').dataset.imageId,
-        width: JSON.parse(imageTarget.dataset.width),
-        height: JSON.parse(imageTarget.dataset.height),
+        id: currentImageID,
+        width: Number.parseInt(imageTarget.dataset.width),
+        height: Number.parseInt(imageTarget.dataset.height),
         representations: currentUris,
         original_format: (/\.(\w+?)$/).exec(currentUris.full)[1]
       });
