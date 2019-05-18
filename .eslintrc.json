@@ -34,6 +34,13 @@
                 "MemberExpression": "off"
             }
         ],
+        "keyword-spacing": [
+            "error",
+            {
+                "before": true,
+                "after": true
+            }
+        ],
         "key-spacing": [
             2,
             {

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Marker's Derpibooru Image Preloader
 // @description  Preload previous/next images.
-// @version      1.2.2
+// @version      1.2.3
 // @author       Marker
 // @license      MIT
 // @namespace    https://github.com/marktaiwan/
@@ -12,6 +12,7 @@
 // @include      https://www.derpibooru.org/*
 // @include      https://www.trixiebooru.org/*
 // @grant        GM_addStyle
+// @inject-into  content
 // @noframes
 // @require      https://openuserjs.org/src/libs/mark.taiwangmail.com/Derpibooru_Unified_Userscript_UI_Utility.js
 // ==/UserScript==
