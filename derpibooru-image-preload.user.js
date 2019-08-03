@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Marker's Derpibooru Image Preloader
 // @description  Preload previous/next images.
-// @version      1.2.4
+// @version      1.2.5
 // @author       Marker
 // @license      MIT
 // @namespace    https://github.com/marktaiwan/
@@ -166,12 +166,22 @@
     return 'full';
   }
 
+  function fetchSequentialId(metaURI) {
+    return new Promise(resolve => {
+      fetch(metaURI, {credentials: 'same-origin'})
+        .then(response => response.json())
+        .then(json => {
+          // response may be empty (e.g. when at the end of list)
+          if (json._id) resolve(json._id);
+        });
+    });
+  }
+
   function fetchMeta(metaURI) {
     return fetch(metaURI, {credentials: 'same-origin'})
-      .then((response) => response.text())
-      .then((text) => {
+      .then(response => response.json())
+      .then(meta => {
         // check response for 'duplicate_of' redirect
-        const meta = JSON.parse(text);
         return (meta.duplicate_of === undefined) ? meta : fetchMeta(`${window.location.origin}/${meta.duplicate_of}.json`);
       });
   }
@@ -236,8 +246,8 @@
       });
     }
     if (get_sequential) {
-      fetchFile(next);
-      fetchFile(prev);
+      fetchSequentialId(next).then(imageId => fetchFile(`${window.location.origin}/${imageId}.json`));
+      fetchSequentialId(prev).then(imageId => fetchFile(`${window.location.origin}/${imageId}.json`));
     }
     if (get_description && description !== null) {
       for (const link of description.querySelectorAll('a')) {
