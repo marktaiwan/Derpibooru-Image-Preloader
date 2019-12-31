@@ -182,7 +182,9 @@
       .then(response => response.json())
       .then(meta => {
         // check response for 'duplicate_of' redirect
-        return (meta.duplicate_of === undefined) ? meta : fetchMeta(`${window.location.origin}/${meta.duplicate_of}.json`);
+        return (meta.duplicate_of === undefined)
+          ? meta
+          : fetchMeta(`${window.location.origin}/api/v1/images/${meta.duplicate_of}`);
       });
   }
 
@@ -246,14 +248,14 @@
       });
     }
     if (get_sequential) {
-      fetchSequentialId(next).then(imageId => fetchFile(`${window.location.origin}/${imageId}.json`));
-      fetchSequentialId(prev).then(imageId => fetchFile(`${window.location.origin}/${imageId}.json`));
+      fetchSequentialId(next).then(imageId => fetchFile(`${window.location.origin}/api/v1/images/${imageId}`));
+      fetchSequentialId(prev).then(imageId => fetchFile(`${window.location.origin}/api/v1/images/${imageId}`));
     }
     if (get_description && description !== null) {
       for (const link of description.querySelectorAll('a')) {
         const match = regex.exec(link.href);
         if (match !== null) {
-          const metaURI = `${window.location.origin}/${match[1]}.json`;
+          const metaURI = `${window.location.origin}/api/v1/images/${match[1]}`;
           fetchFile(metaURI);
         }
       }
