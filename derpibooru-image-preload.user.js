@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Marker's Derpibooru Image Preloader
 // @description  Preload previous/next images.
-// @version      1.2.6
+// @version      1.2.7
 // @author       Marker
 // @license      MIT
 // @namespace    https://github.com/marktaiwan/
@@ -262,16 +262,6 @@
     }
   }
 
-  function initCSS() {
-    if (!document.getElementById(`${SCRIPT_ID}-style`)) {
-      const styleElement = document.createElement('style');
-      styleElement.setAttribute('type', 'text/css');
-      styleElement.id = `${SCRIPT_ID}-style`;
-      styleElement.innerHTML = CSS;
-      document.body.insertAdjacentElement('afterend', styleElement);
-    }
-  }
-
   function toggleSettings(event) {
     event.stopPropagation();
     if (event.currentTarget.classList.contains('disabled')) return;
@@ -425,7 +415,6 @@
       };
     })());
 
-    initCSS();
     insertUI();
     checkTimer();
 
