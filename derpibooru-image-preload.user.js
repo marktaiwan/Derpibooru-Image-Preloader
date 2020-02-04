@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Marker's Derpibooru Image Preloader
 // @description  Preload previous/next images.
-// @version      1.2.8
+// @version      1.2.9
 // @author       Marker
 // @license      MIT
 // @namespace    https://github.com/marktaiwan/
@@ -191,7 +191,9 @@
   async function fetchFile(meta) {
 
     // 'meta' could be an URI or an object
-    const metadata = (typeof meta == 'string') ? await fetchMeta(meta) : meta;
+    const metadata = (typeof meta == 'string')
+      ? await fetchMeta(meta).then(response => response.image)
+      : meta;
     if (isEmpty(metadata)) return;
 
     const version = selectVersion(metadata.width, metadata.height);
@@ -200,14 +202,14 @@
     const get_fullres = config.getEntry('fullres');
     const get_scaled = config.getEntry('scaled');
     const site_scaling = (document.getElementById('image_target').dataset.scaled !== 'false');
-    const serveGifv = (metadata.original_format == 'gif' && uris.webm !== undefined && serve_webm);  // gifv: video clips masquerading as gifs
+    const serveGifv = (metadata.format == 'gif' && uris.webm !== undefined && serve_webm);  // gifv: video clips masquerading as gifs
 
     // Workaround: Derpibooru switched to using id only URL for displaying fullsize images,
     // however the link for the 'full' representation returns by the JSON remains the old one.
     const result = (new RegExp('//derpicdn\\.net/img/view/(\\d+/\\d+/\\d+)').exec(uris['full']));
     if (result) {
       const dateString = result[1];
-      uris['full'] = `//derpicdn.net/img/view/${dateString}/${metadata.id}.${metadata.original_format}`;
+      uris['full'] = `//derpicdn.net/img/view/${dateString}/${metadata.id}.${metadata.format}`;
     }
 
     if (serveGifv) {
@@ -244,7 +246,7 @@
         width: Number.parseInt(imageTarget.dataset.width),
         height: Number.parseInt(imageTarget.dataset.height),
         representations: currentUris,
-        original_format: (/\.(\w+?)$/).exec(currentUris.full)[1]
+        format: (/\.(\w+?)$/).exec(currentUris.full)[1]
       });
     }
     if (get_sequential) {
