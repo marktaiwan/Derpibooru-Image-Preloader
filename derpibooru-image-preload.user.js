@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Marker's Derpibooru Image Preloader
 // @description  Preload previous/next images.
-// @version      1.2.7
+// @version      1.2.8
 // @author       Marker
 // @license      MIT
 // @namespace    https://github.com/marktaiwan/
@@ -184,7 +184,7 @@
         // check response for 'duplicate_of' redirect
         return (meta.duplicate_of === undefined)
           ? meta
-          : fetchMeta(`${window.location.origin}/api/v1/images/${meta.duplicate_of}`);
+          : fetchMeta(`${window.location.origin}/api/v1/json/images/${meta.duplicate_of}`);
       });
   }
 
@@ -248,14 +248,14 @@
       });
     }
     if (get_sequential) {
-      fetchSequentialId(next).then(imageId => fetchFile(`${window.location.origin}/api/v1/images/${imageId}`));
-      fetchSequentialId(prev).then(imageId => fetchFile(`${window.location.origin}/api/v1/images/${imageId}`));
+      fetchSequentialId(next).then(imageId => fetchFile(`${window.location.origin}/api/v1/json/images/${imageId}`));
+      fetchSequentialId(prev).then(imageId => fetchFile(`${window.location.origin}/api/v1/json/images/${imageId}`));
     }
     if (get_description && description !== null) {
       for (const link of description.querySelectorAll('a')) {
         const match = regex.exec(link.href);
         if (match !== null) {
-          const metaURI = `${window.location.origin}/api/v1/images/${match[1]}`;
+          const metaURI = `${window.location.origin}/api/v1/json/images/${match[1]}`;
           fetchFile(metaURI);
         }
       }
