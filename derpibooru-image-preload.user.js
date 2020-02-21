@@ -14,7 +14,7 @@
 // @grant        none
 // @inject-into  content
 // @noframes
-// @require      https://openuserjs.org/src/libs/mark.taiwangmail.com/Derpibooru_Unified_Userscript_UI_Utility.js?v1.0.5
+// @require      https://openuserjs.org/src/libs/mark.taiwangmail.com/Derpibooru_Unified_Userscript_UI_Utility.js?v1.2.1
 // ==/UserScript==
 
 (function () {
