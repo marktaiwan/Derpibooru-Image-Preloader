@@ -11,7 +11,9 @@
 // @include      https://trixiebooru.org/*
 // @include      https://www.derpibooru.org/*
 // @include      https://www.trixiebooru.org/*
-// @grant        none
+// @grant        GM_getValue
+// @grant        GM_setValue
+// @grant        GM_deleteValue
 // @inject-into  content
 // @noframes
 // @require      https://openuserjs.org/src/libs/mark.taiwangmail.com/Derpibooru_Unified_Userscript_UI_Utility.js?v1.2.1
@@ -24,6 +26,65 @@
     'markers_img_prefetcher',
     'Image preloader for a better comic reading experience.'
   );
+
+  // setting up custom API key input
+  const apiFieldset = config.addFieldset(
+    'Account API key',
+    'api_settings',
+    'In order to get the correct previous/next images that works with your site filter or "my:*" searches, your API key is needed to authenticate API requests to the site. You can find your API key in your account settings.'
+  );
+  if (apiFieldset.pageElement) {
+    const description = $('i', apiFieldset.pageElement);
+    description.innerHTML = description.innerHTML.replace('account settings', '<a href="/registration/edit" target="_blank">account settings</a>');
+  }
+
+  const apiSetting = apiFieldset.registerSetting({
+    title: 'Stored key:',
+    key: 'api_key',
+    type: 'text',
+    defaultValue: ''
+  });
+  config.deleteEntry('api_key');  // we only called registerSetting for the UI, we don't actually use this for storing the key
+
+  const apiInput = $('input', apiSetting);
+  apiInput.setAttribute('disabled', '');
+  apiInput.removeAttribute('data-entry-key');
+  apiInput.value = GM_getValue('api_key', '');
+
+  const apiLoad = document.createElement('a');
+  apiLoad.href = '#';
+  apiLoad.innerText = 'Load key';
+  apiLoad.addEventListener('click', e => {
+    e.preventDefault();
+    const key = window.prompt('Enter your API key:', '').trim();
+    if (!key) return;
+    GM_setValue('api_key', key);
+    apiInput.value = key;
+  });
+
+  const apiDelete = document.createElement('a');
+  apiDelete.href = '#';
+  apiDelete.innerText = 'Delete key';
+  apiDelete.addEventListener('click', e => {
+    e.preventDefault();
+    GM_deleteValue('api_key');
+    apiInput.value = '';
+  });
+
+  apiSetting.insertAdjacentElement('beforeEnd', document.createElement('br'));
+  apiSetting.insertAdjacentElement('beforeEnd', apiLoad);
+  apiSetting.insertAdjacentElement('beforeEnd', document.createElement('br'));
+  apiSetting.insertAdjacentElement('beforeEnd', apiDelete);
+
+  apiFieldset.registerSetting({
+    title: 'Enable API workaround',
+    key: 'api_fallback',
+    description: 'Uses an alternate method for getting previous/next images, enable this if you don\'t want the script to have your API key.',
+    type: 'checkbox',
+    defaultValue: true
+  });
+
+  // regular settings
   config.registerSetting({
     title: 'Start prefetch',
     key: 'run-at',
@@ -134,6 +195,14 @@
     return parent.querySelectorAll(selector);
   }
 
+  function getQueryParameter(key) {
+    if (!window.location.search) return;
+    const array = window.location.search.substring(1).split('&');
+    for (let i = 0; i < array.length; i++) {
+      if (key == array[i].split('=')[0]) return array[i].split('=')[1];
+    }
+  }
+
   /**
    * Picks the appropriate image version for a given width and height
    * of the viewport and the image dimensions.
@@ -174,13 +243,12 @@
     return 'full';
   }
 
-  function fetchSequentialId(metaURI) {
+  function fetchSequentialId(url) {
     return new Promise(resolve => {
-      fetch(metaURI, {credentials: 'same-origin'})
+      fetch(url, {credentials: 'same-origin'})
         .then(response => response.json())
         .then(json => {
-          // response may be empty (e.g. when at the end of list)
-          if (json._id) resolve(json._id);
+          if (json.images.length) resolve(json.images[0]);
         });
     });
   }
@@ -228,14 +296,29 @@
   function initPrefetch() {
     config.setEntry('last_run', Date.now());
 
+    const urlTemplate = (imageId, filterId, qualifier) => {
+      const queryParameters = [];
+      const queryString = getQueryParameter('q');
+      const apiKey = GM_getValue('api_key', '');
+      let searchQuery = `id.${qualifier}%3A${imageId}`;     // '%3A' == ':'
+
+      if (queryString) searchQuery += `%2C+${queryString}`; // '%2C' == ','
+      if (apiKey) queryParameters.push(['key', apiKey.trim()]);
+      // reverse the sort order to get the first image greater than the current id
+      if (qualifier == 'gt') queryParameters.push(['sd', 'asc']);
+
+      queryParameters.push(
+        ['per_page', '1'],
+        ['filter_id', filterId],
+        ['q', searchQuery]
+      );
+      return `${window.location.origin}/api/v1/json/search/images?${queryParameters.map(tuple => tuple.join('=')).join('&')}`;
+    };
+
     const regex = new RegExp(
       `^https?://(?:(?:www\\.)?(?:derpibooru\\.org|trixiebooru\\.org)|${window.location.hostname.replace(/\./g, '\\.')})/(?:images/)?(\\d{1,})(?:\\?|\\?.{1,}|/|\\.html)?(?:#.*)?$`
     );
     const description = $('.image-description__text');
-    const currentImageID = regex.exec(window.location.href)[1];
-    const next = `${window.location.origin}/next/${currentImageID}.json${window.location.search}`;
-    const prev = `${window.location.origin}/prev/${currentImageID}.json${window.location.search}`;
-
     const get_sequential = config.getEntry('get_sequential');
     const get_description = config.getEntry('get_description');
 
@@ -244,7 +327,6 @@
       const imageTarget = document.getElementById('image_target');
       const currentUris = JSON.parse(imageTarget.dataset.uris);
       if (imageTarget.dataset.scaled !== 'false') fetchFile({
-        id: currentImageID,
         width: Number.parseInt(imageTarget.dataset.width),
         height: Number.parseInt(imageTarget.dataset.height),
         representations: currentUris,
@@ -252,14 +334,30 @@
       });
     }
     if (get_sequential) {
-      fetchSequentialId(next).then(imageId => fetchFile(`${window.location.origin}/api/v1/json/images/${imageId}`));
-      fetchSequentialId(prev).then(imageId => fetchFile(`${window.location.origin}/api/v1/json/images/${imageId}`));
+      const currentImageID = regex.exec(window.location.href)[1];
+      const filterId = $('.js-datastore').dataset.filterId;
+
+      if (!config.getEntry('api_fallback')) {
+        const next = urlTemplate(currentImageID, filterId, 'lt');
+        const prev = urlTemplate(currentImageID, filterId, 'gt');
+        fetchSequentialId(next).then(fetchFile);
+        fetchSequentialId(prev).then(fetchFile);
+      } else {
+        const next = $('.js-next').href;
+        const prev = $('.js-prev').href;
+        [next, prev].forEach(url => {
+          fetch(url, {credentials: 'same-origin'}).then(response => {
+            const matchImageId = regex.exec(response.url);
+            if (matchImageId) fetchFile(`${window.location.origin}/api/v1/json/images/${matchImageId[1]}`);
+          });
+        });
+      }
     }
     if (get_description && description !== null) {
       for (const link of $$('a', description)) {
-        const match = regex.exec(link.href);
-        if (match !== null) {
-          const metaURI = `${window.location.origin}/api/v1/json/images/${match[1]}`;
+        const matchImageId = regex.exec(link.href);
+        if (matchImageId !== null) {
+          const metaURI = `${window.location.origin}/api/v1/json/images/${matchImageId[1]}`;
           fetchFile(metaURI);
         }
       }
