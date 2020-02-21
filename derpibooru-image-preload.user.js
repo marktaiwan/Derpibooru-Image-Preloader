@@ -228,7 +228,9 @@
   function initPrefetch() {
     config.setEntry('last_run', Date.now());
 
-    const regex = (/^https?:\/\/(?:www\.)?(?:derpibooru\.org|trixiebooru\.org)\/(?:images\/)?(\d{1,})(?:\?|\?.{1,}|\/|\.html)?(?:#.*)?$/i);
+    const regex = new RegExp(
+      `^https?://(?:(?:www\\.)?(?:derpibooru\\.org|trixiebooru\\.org)|${window.location.hostname.replace(/\./g, '\\.')})/(?:images/)?(\\d{1,})(?:\\?|\\?.{1,}|/|\\.html)?(?:#.*)?$`
+    );
     const description = $('.image-description__text');
     const currentImageID = regex.exec(window.location.href)[1];
     const next = `${window.location.origin}/next/${currentImageID}.json${window.location.search}`;
