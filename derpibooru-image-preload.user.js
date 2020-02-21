@@ -210,7 +210,7 @@
     const get_fullres = config.getEntry('fullres');
     const get_scaled = config.getEntry('scaled');
     const site_scaling = (document.getElementById('image_target').dataset.scaled !== 'false');
-    const serveGifv = (metadata.format == 'gif' && uris.webm !== undefined && serve_webm);  // gifv: video clips masquerading as gifs
+    const serveGifv = (metadata.format.toLowerCase() == 'gif' && uris.webm !== undefined && serve_webm);  // gifv: video clips masquerading as gifs
 
     if (serveGifv) {
       uris['full'] = uris[WEBM_SUPPORT ? 'webm' : 'mp4'];
