@@ -212,14 +212,6 @@
     const site_scaling = (document.getElementById('image_target').dataset.scaled !== 'false');
     const serveGifv = (metadata.format == 'gif' && uris.webm !== undefined && serve_webm);  // gifv: video clips masquerading as gifs
 
-    // Workaround: Derpibooru switched to using id only URL for displaying fullsize images,
-    // however the link for the 'full' representation returns by the JSON remains the old one.
-    const result = (new RegExp('//derpicdn\\.net/img/view/(\\d+/\\d+/\\d+)').exec(uris['full']));
-    if (result) {
-      const dateString = result[1];
-      uris['full'] = `//derpicdn.net/img/view/${dateString}/${metadata.id}.${metadata.format}`;
-    }
-
     if (serveGifv) {
       uris['full'] = uris[WEBM_SUPPORT ? 'webm' : 'mp4'];
     }
