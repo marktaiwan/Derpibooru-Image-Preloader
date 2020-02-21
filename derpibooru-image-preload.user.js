@@ -126,6 +126,14 @@
     };
   })();
 
+  function $(selector, parent = document) {
+    return parent.querySelector(selector);
+  }
+
+  function $$(selector, parent = document) {
+    return parent.querySelectorAll(selector);
+  }
+
   /**
    * Picks the appropriate image version for a given width and height
    * of the viewport and the image dimensions.
@@ -229,7 +237,7 @@
     config.setEntry('last_run', Date.now());
 
     const regex = (/^https?:\/\/(?:www\.)?(?:derpibooru\.org|trixiebooru\.org)\/(?:images\/)?(\d{1,})(?:\?|\?.{1,}|\/|\.html)?(?:#.*)?$/i);
-    const description = document.querySelector('.image-description__text');
+    const description = $('.image-description__text');
     const currentImageID = regex.exec(window.location.href)[1];
     const next = `${window.location.origin}/next/${currentImageID}.json${window.location.search}`;
     const prev = `${window.location.origin}/prev/${currentImageID}.json${window.location.search}`;
@@ -254,7 +262,7 @@
       fetchSequentialId(prev).then(imageId => fetchFile(`${window.location.origin}/api/v1/json/images/${imageId}`));
     }
     if (get_description && description !== null) {
-      for (const link of description.querySelectorAll('a')) {
+      for (const link of $$('a', description)) {
         const match = regex.exec(link.href);
         if (match !== null) {
           const metaURI = `${window.location.origin}/api/v1/json/images/${match[1]}`;
@@ -269,7 +277,7 @@
     if (event.currentTarget.classList.contains('disabled')) return;
 
     const anchor = event.currentTarget;
-    const input = anchor.querySelector('input');
+    const input = $('input', anchor);
     const entryId = input.dataset.settingEntry;
     const storedValue = config.getEntry(entryId);
 
@@ -283,8 +291,8 @@
   }
 
   function insertUI() {
-    const header = document.querySelector('header.header');
-    const headerRight = header.querySelector('.header__force-right');
+    const header = $('header.header');
+    const headerRight = $('.header__force-right', header);
     const menuButton = document.createElement('div');
     menuButton.classList.add('dropdown', 'header__dropdown', 'hide-mobile', `${SCRIPT_ID}__menu`);
     menuButton.innerHTML = `
@@ -306,7 +314,7 @@
 </nav>`;
 
     // Attach event listeners
-    menuButton.querySelector(`.${SCRIPT_ID}__main-switch`).addEventListener('click', (e) => {
+    $(`.${SCRIPT_ID}__main-switch`, menuButton).addEventListener('click', (e) => {
       e.preventDefault();
       const scriptActive = config.getEntry('preload');
       if (scriptActive) {
@@ -316,19 +324,19 @@
       }
     });
 
-    for (const option of menuButton.querySelectorAll(`.${SCRIPT_ID}__option`)) {
+    for (const option of $$(`.${SCRIPT_ID}__option`, menuButton)) {
       option.addEventListener('click', toggleSettings);
     }
 
     updateUI(menuButton);
-    headerRight.insertBefore(menuButton, headerRight.querySelector('.header__force-right > :first-child'));
+    headerRight.insertBefore(menuButton, $('.header__force-right > :first-child', headerRight));
   }
 
   function updateUI(ele) {
-    const menu = ele || document.querySelector(`.${SCRIPT_ID}__menu`);
-    const icon = menu.querySelector(`.${SCRIPT_ID}__icon`);
-    const mainSwitch = menu.querySelector(`.${SCRIPT_ID}__main-switch`);
-    const options = menu.querySelectorAll(`.${SCRIPT_ID}__option`);
+    const menu = ele || $(`.${SCRIPT_ID}__menu`);
+    const icon = $(`.${SCRIPT_ID}__icon`, menu);
+    const mainSwitch = $(`.${SCRIPT_ID}__main-switch`, menu);
+    const options = $$(`.${SCRIPT_ID}__option`, menu);
     const scriptActive = config.getEntry('preload');
 
     if (mainSwitch.innerHTML == '') {
@@ -340,13 +348,13 @@
       icon.classList.add('fa-shipping-fast');
 
 
-      mainSwitch.querySelector('i').classList.remove('fa-toggle-off');
-      mainSwitch.querySelector('i').classList.add('fa-toggle-on');
-      mainSwitch.querySelector('span').innerText = ' Turn off';
+      $('i', mainSwitch).classList.remove('fa-toggle-off');
+      $('i', mainSwitch).classList.add('fa-toggle-on');
+      $('span', mainSwitch).innerText = ' Turn off';
 
       for (const option of options) {
         option.classList.remove('disabled');
-        option.querySelector('input').disabled = false;
+        $('input', option).disabled = false;
 
       }
     } else {
@@ -354,18 +362,18 @@
       icon.classList.add('fa-truck');
 
 
-      mainSwitch.querySelector('i').classList.remove('fa-toggle-on');
-      mainSwitch.querySelector('i').classList.add('fa-toggle-off');
-      mainSwitch.querySelector('span').innerText = ' Turn on';
+      $('i', mainSwitch).classList.remove('fa-toggle-on');
+      $('i', mainSwitch).classList.add('fa-toggle-off');
+      $('span', mainSwitch).innerText = ' Turn on';
 
       for (const option of options) {
         option.classList.add('disabled');
-        option.querySelector('input').disabled = true;
+        $('input', option).disabled = true;
       }
     }
 
     for (const option of options) {
-      const input = option.querySelector('input');
+      const input = $('input', option);
       input.checked = config.getEntry(input.dataset.settingEntry);
     }
   }
