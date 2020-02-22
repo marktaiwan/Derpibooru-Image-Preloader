@@ -126,7 +126,7 @@
   versionFieldset.registerSetting({
     title: 'Download full resolution version',
     key: 'fullres',
-    description: 'Turn this on to ensure that the full sized version is always downloaded.',
+    description: 'Turn this on to ensure that the full sized version is always loaded.',
     type: 'checkbox',
     defaultValue: true
   });
