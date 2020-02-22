@@ -160,11 +160,16 @@
       update();
     };
     const loadFile = (fileURI) => {
-      const tag = (fileURI.endsWith('.webm') || fileURI.endsWith('.mp4')) ? 'video' : 'img';
-      const ele = document.createElement(tag);
-      ++activeConnections;
-      ele.addEventListener('load', fileLoadHandler);
+      const IS_VIDEO = (fileURI.endsWith('.webm') || fileURI.endsWith('.mp4'));
+      const ele = document.createElement(IS_VIDEO ? 'video' : 'img');
+      if (IS_VIDEO) {
+        ele.setAttribute('preload', 'auto');
+        ele.addEventListener('canplaythrough', fileLoadHandler, {once: true});
+      } else {
+        ele.addEventListener('load', fileLoadHandler, {once: true});
+      }
       ele.src = fileURI;
+      ++activeConnections;
     };
     const update = () => {
       while (!loadingLimited()) {
