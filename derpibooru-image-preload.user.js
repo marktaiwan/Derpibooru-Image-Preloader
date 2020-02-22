@@ -421,7 +421,7 @@
     }
 
     updateUI(menuButton);
-    headerRight.insertBefore(menuButton, $('.header__force-right > :first-child', headerRight));
+    headerRight.insertAdjacentElement('afterbegin', menuButton);
   }
 
   function updateUI(ele) {
