@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Marker's Derpibooru Image Preloader
 // @description  Preload previous/next images.
-// @version      1.2.10
+// @version      1.2.11
 // @author       Marker
 // @license      MIT
 // @namespace    https://github.com/marktaiwan/
@@ -398,7 +398,7 @@
   <span class="hide-limited-desktop"> Preloader </span>
   <span data-click-preventdefault="true"><i class="fa fa-caret-down"></i></span>
 </a>
-<nav class="dropdown__content dropdown__content-right hide-mobile js-burger-links">
+<nav class="dropdown__content dropdown__content-right hide-mobile">
   <a class="${SCRIPT_ID}__main-switch header__link"></a>
   <a class="header__link ${SCRIPT_ID}__option">
     <input type="checkbox" id="${SCRIPT_ID}--get_seq" data-setting-entry="get_sequential">
