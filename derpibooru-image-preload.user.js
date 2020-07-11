@@ -249,13 +249,9 @@
   }
 
   function fetchSequentialId(url) {
-    return new Promise(resolve => {
-      fetch(url, {credentials: 'same-origin'})
-        .then(response => response.json())
-        .then(json => {
-          if (json.images.length) resolve(json.images[0]);
-        });
-    });
+    return fetch(url, {credentials: 'same-origin'})
+      .then(response => response.json())
+      .then(json => (json.images.length) ? json.images[0] : null);
   }
 
   function fetchMeta(metaURI) {
@@ -275,7 +271,7 @@
     const metadata = (typeof meta == 'string')
       ? await fetchMeta(meta).then(response => response.image)
       : meta;
-    if (isEmpty(metadata)) return;
+    if (meta === null || isEmpty(metadata)) return;
 
     const version = selectVersion(metadata.width, metadata.height);
     const uris = metadata.representations;
