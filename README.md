@@ -1,19 +1,19 @@
 # Image Preloader Userscript
 
-## Userscript for preloading images on Derpibooru.
+## Userscript for preloading images on Twibooru.
 
 Check the [branches](https://github.com/marktaiwan/Derpibooru-Image-Preloader/branches/all) for all supported sites.
 
 For instructions, see the [thread on Derpibooru](https://derpibooru.org/forums/meta/topics/userscript-markers-derpibooru-image-preloader).
 
 Requires [Violenmonkey](https://violentmonkey.github.io/)  
-[Click here to install](https://github.com/marktaiwan/Derpibooru-Image-Preloader/raw/master/derpibooru-image-preload.user.js)
+[Click here to install](https://github.com/marktaiwan/Derpibooru-Image-Preloader/raw/twibooru/image-preload.user.js)
 
 ## Settings and features
 
-Once installed, the script settings could be found on the [user settings page](https://derpibooru.org/settings/edit?active_tab=userscript).
+Once installed, the script settings could be found on the [user settings page](https://twibooru.org/settings/edit?active_tab=userscript).
 
-![settings](https://raw.githubusercontent.com/marktaiwan/Derpibooru-Image-Preloader/master/screenshots/settings.PNG)
+![settings](https://raw.githubusercontent.com/marktaiwan/Derpibooru-Image-Preloader/twibooru/screenshots/settings.PNG)
 
 ##### Start prefetch…
 
@@ -36,4 +36,4 @@ Let's face it, this script serves a pretty niche purpose, have it turned on all 
 
 On the image pages, you will find a dropdown list allowing you to turn the preloader on or off.
 
-![quick toggle](https://raw.githubusercontent.com/marktaiwan/Derpibooru-Image-Preloader/master/screenshots/toggle%20button.PNG)
+![quick toggle](https://raw.githubusercontent.com/marktaiwan/Derpibooru-Image-Preloader/twibooru/screenshots/toggle%20button.PNG)
