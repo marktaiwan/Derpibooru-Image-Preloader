@@ -246,7 +246,7 @@
     // Sanity check to make sure we're not serving unintentionally huge assets
     // all at once (where "huge" > 25 MiB). Videos are loaded in chunks so it
     // doesn't matter too much there.
-    if (imageMime === 'video/webm' || imageSize <= 26214400) {
+    if (imageMime === 'video/webm' || imageMime === 'video/mp4' || imageSize <= 26214400) {
       return 'full';
     }
     else {
