@@ -212,7 +212,7 @@
    * Picks the appropriate image version for a given width and height
    * of the viewport and the image dimensions.
    */
-  function selectVersion(imageWidth, imageHeight) {
+  function selectVersion(imageWidth, imageHeight, imageSize, imageMime) {
     const imageVersions = {
       small: [320, 240],
       medium: [800, 600],
@@ -244,8 +244,17 @@
       }
     }
 
-    // If the view is larger than any available version, display the original image
-    return 'full';
+    // If the view is larger than any available version, display the original image.
+    //
+    // Sanity check to make sure we're not serving unintentionally huge assets
+    // all at once (where "huge" > 25 MiB). Videos are loaded in chunks so it
+    // doesn't matter too much there.
+    if (imageMime === 'video/webm' || imageSize <= 26214400) {
+      return 'full';
+    }
+    else {
+      return 'large';
+    }
   }
 
   function fetchSequentialId(url) {
@@ -273,13 +282,13 @@
       : meta;
     if (meta === null || isEmpty(metadata)) return;
 
-    const version = selectVersion(metadata.width, metadata.height);
+    const version = selectVersion(metadata.width, metadata.height, metadata.size, metadata.mime_type);
     const uris = metadata.representations;
     const serve_webm = JSON.parse(localStorage.getItem('serve_webm'));
     const get_fullres = config.getEntry('fullres');
     const get_scaled = config.getEntry('scaled');
     const site_scaling = (document.getElementById('image_target').dataset.scaled !== 'false');
-    const serveGifv = (metadata.format.toLowerCase() == 'gif' && uris.webm !== undefined && serve_webm);  // gifv: video clips masquerading as gifs
+    const serveGifv = (metadata.mime_type == 'image/gif' && uris.webm !== undefined && serve_webm);  // gifv: video clips masquerading as gifs
 
     if (serveGifv) {
       uris['full'] = uris[WEBM_SUPPORT ? 'webm' : 'mp4'];
@@ -326,12 +335,12 @@
     if (config.getEntry('fullres')) {
       // preload current image's full res version
       const imageTarget = document.getElementById('image_target');
-      const currentUris = JSON.parse(imageTarget.dataset.uris);
       if (imageTarget.dataset.scaled !== 'false') fetchFile({
         width: Number.parseInt(imageTarget.dataset.width),
         height: Number.parseInt(imageTarget.dataset.height),
-        representations: currentUris,
-        format: (/\.(\w+?)$/).exec(currentUris.full)[1]
+        representations: JSON.parse(imageTarget.dataset.uris),
+        size: Number.parseInt(imageTarget.dataset.imageSize),
+        mime_type: imageTarget.dataset.mimeType,
       });
     }
     if (get_sequential) {
