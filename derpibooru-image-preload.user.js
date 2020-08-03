@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Marker's Derpibooru Image Preloader
 // @description  Preload previous/next images.
-// @version      1.2.12
+// @version      1.2.13
 // @author       Marker
 // @license      MIT
 // @namespace    https://github.com/marktaiwan/
