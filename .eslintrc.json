@@ -9,7 +9,7 @@
         "ConfigManager": "readonly"
     },
     "parserOptions": {
-        "ecmaVersion": 2018,
+        "ecmaVersion": 2021,
         "ecmaFeatures": {
             "globalReturn": true
         }
