@@ -198,7 +198,7 @@
 
     // 'meta' could be an URI or an object
     const metadata = (typeof meta == 'string') ? await fetchMeta(meta) : meta;
-    if (isEmpty(metadata)) return;
+    if (isEmpty(metadata) || metadata.media_type != 'image') return;
 
     const version = selectVersion(metadata.width, metadata.height);
     const uris = metadata.representations;
@@ -225,7 +225,7 @@
     config.setEntry('last_run', Date.now());
 
     const regex = new RegExp(
-      `^https?://(?:(?:www\\.)?(?:twibooru\\.org)|${window.location.hostname.replace(/\./g, '\\.')})/(?:images/)?(\\d{1,})(?:\\?|\\?.{1,}|/|\\.html)?(?:#.*)?$`
+      `^https?://(?:(?:www\\.)?(?:twibooru\\.org)|${window.location.hostname.replace(/\./g, '\\.')})/(?:posts/|images/)?(\\d{1,})(?:\\?|\\?.{1,}|/|\\.html)?(?:#.*)?$`
     );
     const description = $('.image-description__text');
     const currentImageID = regex.exec(window.location.href)[1];
