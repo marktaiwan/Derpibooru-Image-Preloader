@@ -177,7 +177,7 @@
   }
 
   function fetchSequentialId(metaURI) {
-    fetch(metaURI, {credentials: 'same-origin'})
+    return fetch(metaURI, {credentials: 'same-origin'})
       .then(response => response.json())
       .then(json => {
         // response may be empty (e.g. when at the end of list)
