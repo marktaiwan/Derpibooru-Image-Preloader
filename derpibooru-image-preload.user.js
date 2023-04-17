@@ -501,7 +501,7 @@
 
   function isEmpty(obj) {
     for (const key in obj) {
-      if (obj.hasOwnProperty(key)) return false;
+      if (Object.prototype.hasOwnProperty.call(obj, key)) return false;
     }
     return true;
   }
