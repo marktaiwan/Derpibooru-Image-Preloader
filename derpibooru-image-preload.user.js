@@ -287,7 +287,7 @@
     const serve_webm = JSON.parse(localStorage.getItem('serve_webm'));
     const get_fullres = config.getEntry('fullres');
     const get_scaled = config.getEntry('scaled');
-    const site_scaling = (document.getElementById('image_target').dataset.scaled !== 'false');
+    const site_scaling = (document.querySelector('#image_target, .image-target').dataset.scaled !== 'false');
     const serveGifv = (metadata.mime_type == 'image/gif' && uris.webm !== undefined && serve_webm);  // gifv: video clips masquerading as gifs
 
     if (serveGifv) {
@@ -334,7 +334,7 @@
 
     if (config.getEntry('fullres')) {
       // preload current image's full res version
-      const imageTarget = document.getElementById('image_target');
+      const imageTarget = document.querySelector('#image_target, .image-target');
       if (imageTarget.dataset.scaled !== 'false') fetchFile({
         width: Number.parseInt(imageTarget.dataset.width),
         height: Number.parseInt(imageTarget.dataset.height),
@@ -507,7 +507,7 @@
   }
 
   // run on main image page, only start after the page finished loading resources
-  if (document.getElementById('image_target') !== null) {
+  if (document.querySelector('#image_target, .image-target') !== null) {
     // Use the storage event to update UI across tabs
     window.addEventListener('storage', (function () {
       let preload = config.getEntry('preload');
