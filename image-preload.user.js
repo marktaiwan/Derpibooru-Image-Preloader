@@ -176,28 +176,24 @@
     return 'full';
   }
 
-  function fetchSequentialId(metaURI) {
-    return fetch(metaURI, {credentials: 'same-origin'})
-      .then(response => response.json())
-      .then(json => {
-        // response may be empty (e.g. when at the end of list)
-        if (json._id) return json._id;
-      });
-  }
 
   function fetchMeta(metaURI) {
     return fetch(metaURI, {credentials: 'same-origin'})
       .then(response => response.json())
       .then(meta => {
         // check response for 'duplicate_of' redirect
-        return (meta.duplicate_of === undefined) ? meta : fetchMeta(`${window.location.origin}/${meta.duplicate_of}.json`);
+        return (meta.duplicate_of === undefined)
+          ? meta
+          : fetchMeta(`${window.location.origin}/api/v3/posts/${meta.duplicate_of}`);
       });
   }
 
   async function fetchFile(meta) {
 
     // 'meta' could be an URI or an object
-    const metadata = (typeof meta == 'string') ? await fetchMeta(meta) : meta;
+    const metadata = (typeof meta == 'string')
+      ? await fetchMeta(meta).then(response => response.post)
+      : meta;
     if (isEmpty(metadata) || metadata.media_type != 'image') return;
 
     const version = selectVersion(metadata.width, metadata.height);
@@ -206,7 +202,7 @@
     const get_fullres = config.getEntry('fullres');
     const get_scaled = config.getEntry('scaled');
     const site_scaling = (document.getElementById('image_target').dataset.scaled !== 'false');
-    const serveGifv = (metadata.original_format.toLowerCase() == 'gif' && uris.webm !== undefined && serve_webm);  // gifv: video clips masquerading as gifs
+    const serveGifv = (metadata.format.toLowerCase() == 'gif' && uris.webm !== undefined && serve_webm);  // gifv: video clips masquerading as gifs
 
     if (serveGifv) {
       uris['full'] = uris[WEBM_SUPPORT ? 'webm' : 'mp4'];
@@ -228,36 +224,36 @@
       `^https?://(?:(?:www\\.)?(?:twibooru\\.org)|${window.location.hostname.replace(/\./g, '\\.')})/(?:posts/|images/)?(\\d{1,})(?:\\?|\\?.{1,}|/|\\.html)?(?:#.*)?$`
     );
     const description = $('.image-description__text');
-    const currentImageID = regex.exec(window.location.href)[1];
-    const next = `${window.location.origin}/next/${currentImageID}.json${window.location.search}`;
-    const prev = `${window.location.origin}/prev/${currentImageID}.json${window.location.search}`;
-
     const get_sequential = config.getEntry('get_sequential');
     const get_description = config.getEntry('get_description');
+    const imageTarget = document.getElementById('image_target');
 
-    if (config.getEntry('fullres')) {
+    // imageTarget will be null on pastes
+    if (imageTarget && config.getEntry('fullres')) {
       // preload current image's full res version
-      const imageTarget = document.getElementById('image_target');
       const currentUris = JSON.parse(imageTarget.dataset.uris);
       if (imageTarget.dataset.scaled !== 'false') fetchFile({
-        id: currentImageID,
         width: Number.parseInt(imageTarget.dataset.width),
         height: Number.parseInt(imageTarget.dataset.height),
         representations: currentUris,
-        original_format: (/\.(\w+?)$/).exec(currentUris.full)[1]
+        format: (/\.(\w+?)$/).exec(currentUris.full)[1],
+        media_type: 'image',
       });
     }
     if (get_sequential) {
-      fetchSequentialId(next).then(imageId => fetchFile(`${window.location.origin}/${imageId}.json`));
-      fetchSequentialId(prev).then(imageId => fetchFile(`${window.location.origin}/${imageId}.json`));
+      const next = $('.js-next').href;
+      const prev = $('.js-prev').href;
+      [next, prev].forEach(url => {
+        fetch(url, {credentials: 'same-origin'}).then(response => {
+          const matchPostId = regex.exec(response.url);
+          if (matchPostId) fetchFile(`${window.location.origin}/api/v3/posts/${matchPostId[1]}`);
+        });
+      });
     }
     if (get_description && description !== null) {
       for (const link of $$('a', description)) {
-        const match = regex.exec(link.href);
-        if (match !== null) {
-          const metaURI = `${window.location.origin}/${match[1]}.json`;
-          fetchFile(metaURI);
-        }
+        const matchPostId = regex.exec(link.href);
+        if (matchPostId) fetchFile(`${window.location.origin}/api/v3/posts/${matchPostId[1]}`);
       }
     }
   }
