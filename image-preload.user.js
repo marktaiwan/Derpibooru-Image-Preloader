@@ -176,7 +176,6 @@
     return 'full';
   }
 
-
   function fetchMeta(metaURI) {
     return fetch(metaURI, {credentials: 'same-origin'})
       .then(response => response.json())
@@ -189,7 +188,6 @@
   }
 
   async function fetchFile(meta) {
-
     // 'meta' could be an URI or an object
     const metadata = (typeof meta == 'string')
       ? await fetchMeta(meta).then(response => response.post)
@@ -208,7 +206,7 @@
       uris['full'] = uris[WEBM_SUPPORT ? 'webm' : 'mp4'];
     }
 
-    // May I never have to untangle these two statemeants again
+    // May I never have to untangle these two statements again
     if (get_scaled && site_scaling && version !== 'full') {
       addToLoadingQueue(uris[version]);
     }
@@ -385,7 +383,7 @@
 
   function isEmpty(obj) {
     for (const key in obj) {
-      if (obj.hasOwnProperty(key)) return false;
+      if (Object.prototype.hasOwnProperty.call(obj, key)) return false;
     }
     return true;
   }
