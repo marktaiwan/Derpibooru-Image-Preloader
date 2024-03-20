@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Twibooru Image Preloader
 // @description  Preload previous/next images.
-// @version      1.2.13
+// @version      1.2.15
 // @author       Marker
 // @license      MIT
 // @namespace    https://github.com/marktaiwan/
