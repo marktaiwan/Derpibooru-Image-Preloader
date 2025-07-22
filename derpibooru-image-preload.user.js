@@ -21,6 +21,7 @@
 
 (function () {
   'use strict';
+  /* global ConfigManager */
   const config = ConfigManager(
     'Image Preloader',
     'markers_img_prefetcher',
@@ -92,7 +93,7 @@
     defaultValue: 'document-idle',
     selections: [
       {text: 'when current page finishes loading', value: 'document-idle'},
-      {text: 'as soon as possible', value: 'document-end'}
+      {text: 'as soon as possible', value: 'document-end'},
     ]
   });
   const imageSelection = config.addFieldset(
@@ -139,7 +140,7 @@
     selections: [
       {text: ' 5 minutes', value: '300'},
       {text: '10 minutes', value: '600'},
-      {text: '20 minutes', value: '1200'}
+      {text: '20 minutes', value: '1200'},
     ]
   });
 
@@ -153,13 +154,13 @@
     let activeConnections = 0;
 
     const loadingLimited = () => (activeConnections >= MAX_CONNECTIONS && MAX_CONNECTIONS != 0);
-    const enqueue = (uri) => fetchQueue.push(uri);
+    const enqueue = uri => fetchQueue.push(uri);
     const dequeue = () => fetchQueue.shift();
     const fileLoadHandler = () => {
       --activeConnections;
       update();
     };
-    const loadFile = (fileURI) => {
+    const loadFile = fileURI => {
       const IS_VIDEO = (fileURI.endsWith('.webm') || fileURI.endsWith('.mp4'));
       const ele = document.createElement(IS_VIDEO ? 'video' : 'img');
       if (IS_VIDEO) {
@@ -183,7 +184,7 @@
       }
     };
 
-    return (uri) => {
+    return uri => {
       if (!loadingLimited()) {
         loadFile(uri);
       } else {
@@ -251,8 +252,7 @@
     // doesn't matter too much there.
     if (imageMime === 'video/webm' || imageSize <= 26214400) {
       return 'full';
-    }
-    else {
+    } else {
       return 'large';
     }
   }
@@ -294,7 +294,7 @@
       uris['full'] = uris[WEBM_SUPPORT ? 'webm' : 'mp4'];
     }
 
-    // May I never have to untangle these two statemeants again
+    // May I never have to untangle these two statements again
     if (get_scaled && site_scaling && version !== 'full') {
       addToLoadingQueue(uris[version]);
     }
@@ -416,7 +416,7 @@
 </nav>`;
 
     // Attach event listeners
-    $(`.${SCRIPT_ID}__main-switch`, menuButton).addEventListener('click', (e) => {
+    $(`.${SCRIPT_ID}__main-switch`, menuButton).addEventListener('click', e => {
       e.preventDefault();
       const scriptActive = config.getEntry('preload');
       if (scriptActive) {
